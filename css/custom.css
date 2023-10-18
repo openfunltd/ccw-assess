@@ -1,0 +1,7 @@
+div.dataTables_scrollBody {
+  border-left: 0px !important;
+}
+
+table.dataTable thead td {
+  vertical-align: middle;
+}
