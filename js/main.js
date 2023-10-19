@@ -10,9 +10,9 @@ async function main(tableId) {
         { orderable: false, targets: 'nosort' }
     ],
     fixedHeader: true,
-    dom: 'Bfrtip',
+    dom: '<<"row"<"col"B><"col filter_adjust"f>>>rtip',
     buttons: [
-        'copy', 'excel'
+        'pageLength', 'copy', 'excel'
     ]
   });
   const term = 10;
