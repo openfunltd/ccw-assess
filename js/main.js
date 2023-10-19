@@ -40,13 +40,14 @@ async function main(tableId) {
       sessionTimes = meet.sessionTimes.toString();
       attended = meet.議事錄.出席委員;
       leave = meet.議事錄.請假委員;
-      total_count += 1;
       if (attended.includes(rowData.name)){
         rowData[sessionTimes] = "attended";
+        total_count += 1;
         attended_count += 1;
       } else if (leave.includes(rowData.name)){
         rowData[sessionTimes] = "leave";
       } else {
+        total_count += 1;
         rowData[sessionTimes] = "absent";
       }
     });
