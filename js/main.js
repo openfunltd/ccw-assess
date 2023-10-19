@@ -18,8 +18,10 @@ async function main(tableId) {
   const attendance = await getAttendance(10, 6);
   let rowsData = [];
   let committee, sessionTimes, attended, leave;
+  const removedLegislaters = ["陳柏惟", "王鴻薇", "陳培瑜", "蔡培慧"];
   legislators.forEach(legislator => {
     let rowData = {};
+    if (removedLegislaters.includes(legislator.name)) { return; }
     rowData.name = legislator.name;
     rowData.party = legislator.party;
     committee = legislator.committee.filter(comt => comt.includes(`第${term}屆第${sessionPeriod}會期`)); 
