@@ -53,7 +53,10 @@ async function main(tableId) {
         rowData[sessionTimes] = "absent";
       }
     });
-    ccw_score = (attended_count/total_count) * 3
+    ccw_score = (attended_count/total_count) * 3;
+    if (ccw_score != 3) {
+      ccw_score = ccw_score.toFixed(3);
+    }
     rowData.total_count = total_count;
     rowData.attended_count = attended_count;
     rowData.ccw_score = ccw_score;
