@@ -64,7 +64,6 @@ async function main(tableId) {
     row = row.concat([rowData.total_count, rowData.attended_count, rowData.ccw_score]);
     let meet_count = Object.keys(rowData).length - row.length;
     for(var i = 1; i <= meet_count; i++) {
-      console.log("i", i)
       if (rowData[i.toString()] === "attended"){
         row = row.concat([1,0,0]);
       } else if (rowData[i.toString()] === "leave"){
