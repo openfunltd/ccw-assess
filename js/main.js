@@ -7,9 +7,13 @@ async function main(tableId) {
     scrollX: true,
     fixedColumns: {left: 6},
     columnDefs: [
-      { orderable: false, targets: 'nosort' }
+        { orderable: false, targets: 'nosort' }
     ],
     fixedHeader: true,
+    dom: 'Bfrtip',
+    buttons: [
+        'copy', 'excel'
+    ]
   });
   const term = 10;
   const sessionPeriod = 6;
