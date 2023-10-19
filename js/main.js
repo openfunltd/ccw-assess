@@ -15,11 +15,18 @@ async function main(tableId) {
         'pageLength', 'copy', 'excel'
     ]
   });
-  const term = 10;
-  const sessionPeriod = 6;
-  const legislators = await getLegislators(10, 6);
+
+  const GET_term = document.location.search.match(/term=([0-9]*)/);
+  const GET_sessionPeriod = document.location.search.match(/sessionPeriod=([0-9]*)/);
+  let term = (GET_term) ? GET_term[1] : 10;
+  let sessionPeriod = (GET_sessionPeriod) ? GET_sessionPeriod[1] : 6;
+  term = encodeURIComponent(term);
+  sessionPeriod = encodeURIComponent(sessionPeriod);
+
+  const legislators = await getLegislators(term, sessionPeriod);
   const type1Committees = await getType1Committees();
-  const attendance = await getAttendance(10, 6);
+  const attendance = await getAttendance(term, sessionPeriod);
+
   let rowsData = [];
   let committee, sessionTimes, attended, leave;
   const removedLegislaters = ["陳柏惟", "王鴻薇", "陳培瑜", "蔡培慧"];
@@ -82,8 +89,8 @@ async function main(tableId) {
 function getAttendance(term, sessionPeriod) {
   return new Promise((resolve, reject) => {
     const url = "https://ly.govapi.tw/meet/" +
-        "?term=" + encodeURIComponent(term) +
-        "&sessionPeriod=" + encodeURIComponent(sessionPeriod) +
+        "?term=" + term +
+        "&sessionPeriod=" + sessionPeriod +
         "&meet_type=院會";
     $.getJSON(url, function(data) {
       resolve(data.meets);
@@ -103,7 +110,7 @@ function getType1Committees() {
 
 function getLegislators(term, sessionPeriod) {
   return new Promise((resolve, reject) => {
-    const url = "https://ly.govapi.tw/legislator/" + encodeURIComponent(term) + "?limit=300";
+    const url = "https://ly.govapi.tw/legislator/" + term + "?limit=300";
     $.getJSON(url, function(data) {
       resolve(data.legislators);
     });
