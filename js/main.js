@@ -38,9 +38,6 @@ async function main(tableId) {
     let ccw_score = 0;
     attendance.forEach(meet => {
       sessionTimes = meet.sessionTimes.toString();
-      if (["15","16"].includes(sessionTimes)){
-        return;
-      }
       attended = meet.議事錄.出席委員;
       leave = meet.議事錄.請假委員;
       total_count += 1;
