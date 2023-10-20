@@ -2,6 +2,15 @@ $(document).ready(main("A1"));
 
 
 async function main(tableId) {
+  const GET_term = document.location.search.match(/term=([0-9]*)/);
+  const GET_sessionPeriod = document.location.search.match(/sessionPeriod=([0-9]*)/);
+  let term = (GET_term) ? GET_term[1] : 10;
+  let sessionPeriod = (GET_sessionPeriod) ? GET_sessionPeriod[1] : 6;
+  term = encodeURIComponent(term);
+  sessionPeriod = encodeURIComponent(sessionPeriod);
+
+  const attendance = await getAttendance(term, sessionPeriod);
+
   const table = $('#' + tableId).DataTable({
     keys: true,
     scrollX: true,
@@ -16,16 +25,8 @@ async function main(tableId) {
     ]
   });
 
-  const GET_term = document.location.search.match(/term=([0-9]*)/);
-  const GET_sessionPeriod = document.location.search.match(/sessionPeriod=([0-9]*)/);
-  let term = (GET_term) ? GET_term[1] : 10;
-  let sessionPeriod = (GET_sessionPeriod) ? GET_sessionPeriod[1] : 6;
-  term = encodeURIComponent(term);
-  sessionPeriod = encodeURIComponent(sessionPeriod);
-
   const legislators = await getLegislators(term, sessionPeriod);
   const type1Committees = await getType1Committees();
-  const attendance = await getAttendance(term, sessionPeriod);
 
   let rowsData = [];
   let committee, sessionTimes, attended, leave;
