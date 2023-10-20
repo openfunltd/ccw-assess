@@ -9,6 +9,9 @@ async function main(tableId) {
   term = encodeURIComponent(term);
   sessionPeriod = encodeURIComponent(sessionPeriod);
 
+  $(document).prop('title', `A1 ${term}-${sessionPeriod} 院會出席整理`);
+  $("#title").text(`A1 ${term}-${sessionPeriod} 院會出席整理`);
+
   const attendance = await getAttendance(term, sessionPeriod);
 
   const trHead0 = $("tr.head-row-0");
