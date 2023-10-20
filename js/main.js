@@ -11,6 +11,15 @@ async function main(tableId) {
 
   const attendance = await getAttendance(term, sessionPeriod);
 
+  const trHead0 = $("tr.head-row-0");
+  const trHead1 = $("tr.head-row-1");
+  for (let i = 0; i < attendance.length; i++) {
+    trHead0.append($(`<td class="dt-head-center" colspan="3">第 ${i+1} 次會議</td>`));
+    trHead1.append($('<td class="nosort">出席</td>'));
+    trHead1.append($('<td class="nosort">請假</td>'));
+    trHead1.append($('<td class="nosort">缺席</td>'));
+  }
+
   const table = $('#' + tableId).DataTable({
     keys: true,
     scrollX: true,
