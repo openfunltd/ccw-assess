@@ -41,11 +41,27 @@ async function main(tableId) {
   const type1Committees = await getType1Committees();
 
   let rowsData = [];
+  let meetDates = [];
   let committee, sessionTimes, attended, leave;
-  const removedLegislaters = ["陳柏惟", "王鴻薇", "陳培瑜", "蔡培慧"];
+  let onboardDate, leaveDate, meetStartDate;
+
+  attendance.forEach((meet) => {
+    meetStartDate = meet.meet_data.reduce((prev, curr) => {
+      prev = new Date(`${prev.date} 00:00`);
+      curr = new Date(`${curr.date} 00:00`);
+      return (prev < curr) ? prev : curr;
+    });
+    meetDates.push(meetStartDate);
+  });
+  maxMeetDate = meetDates.reduce((prev, curr) => { return (prev > curr) ? prev : curr});
+  minMeetDate = meetDates.reduce((prev, curr) => { return (prev < curr) ? prev : curr});
+
   legislators.forEach(legislator => {
     let rowData = {};
-    if (removedLegislaters.includes(legislator.name)) { return; }
+    onboardDate = new Date(legislator.onboardDate);
+    leaveDate = (legislator.leaveDate === "") ? "" : new Date(legislator.leaveDate);
+    if (onboardDate >= maxMeetDate) { return; };
+    if (leaveDate != "" && leaveDate <= minMeetDate){ return; };
     rowData.name = legislator.name;
     rowData.party = legislator.party;
     committee = legislator.committee.filter(comt => comt.includes(`第${term}屆第${sessionPeriod}會期`)); 
