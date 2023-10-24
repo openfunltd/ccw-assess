@@ -123,7 +123,8 @@ function getAttendance(term, sessionPeriod) {
         "&sessionPeriod=" + sessionPeriod +
         "&meet_type=院會";
     $.getJSON(url, function(data) {
-      resolve(data.meets);
+      meets = data.meets.filter(meet => meet.id.startsWith('院會'));
+      resolve(meets);
     });
   });
 }
