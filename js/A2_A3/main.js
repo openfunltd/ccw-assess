@@ -39,7 +39,16 @@ async function main(tableId) {
     rowData.push(number_of_oral_queries);
     rowsData.push(rowData);
   }
-  
+
+  let comtLegislators = [];
+  const comtName = await getCommitteeName(comtCd);
+  const legislators = await getLegislators(term);
+
+  for (const legislator of legislators) {
+    const isComt = legislator.committee.includes(`第${term}屆第${sessionPeriod}會期：${comtName}`);
+    if (isComt) { comtLegislators.push(legislator.name); }
+  }
+
   const table = $('#' + tableId).DataTable({
     keys: true,
     scrollX: true,
@@ -79,4 +88,22 @@ function formatDates(dates) {
   });
   dates = dateMatches.join('／');
   return year + dates;
+}
+
+function getLegislators(term) {
+  return new Promise((resolve, reject) => {
+    const url = `https://ly.govapi.tw/legislator/${term}?limit=300`;
+    $.getJSON(url, function(data) {
+      resolve(data.legislators);
+    });
+  });
+}
+
+function getCommitteeName(comtCd) {
+  return new Promise((resolve, reject) => {
+    const url = `https://ly.govapi.tw/committee/${comtCd}`;
+    $.getJSON(url, function(data) {
+      resolve(data.comtName);
+    });
+  });
 }
