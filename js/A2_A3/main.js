@@ -18,7 +18,7 @@ async function main(tableId) {
   rowsData = []
   for(const meeting of meetings) {
     if (meeting.議事錄 === undefined){
-      rowsData.push([meeting.id, meeting.title, "", "", "", "", ""]);
+      rowsData.push([meeting.id, meeting.title, "", "", "", "", "", ""]);
       continue;
     }
     let rowData = [];
