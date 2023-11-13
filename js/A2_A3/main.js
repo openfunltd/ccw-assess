@@ -43,6 +43,9 @@ async function main(tableId) {
   meetings = await getMeetings(term, sessionPeriod, comtCd);
   rowsData = []
   for(const meeting of meetings) {
+    if (meeting.meet_type === "聯席會議" && !meeting.id.startsWith(`${term}-${sessionPeriod}-${comtCd}`, 5)) {
+      continue;
+    }
     let rowData = [];
     if (meeting.議事錄 === undefined){
       rowData.push(meeting.id, meeting.title);
