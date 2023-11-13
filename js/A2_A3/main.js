@@ -62,7 +62,7 @@ async function main(tableId) {
     for (const [i, date] of dates.entries()) {
       rowData = [];
       if (dates.length > 1) { title = `${meeting.title}-${i+1}` };
-      rowData.push(date, title, attendees);
+      rowData.push(date, title, (i > 0) ? "（併簽）" : attendees);
       let [oral, written] = [[], []];
       if (interpellations != undefined) {
         oral = interpellations.filter(item => item.日期 === date && item.種類 === "口頭質詢");
