@@ -108,14 +108,13 @@ function getMeetings(term, sessionPeriod, comtCd) {
 function formatDates(dates) {
   const yearPattern = /(\d+年)/g;
   const datePattern = /(\d+月\d+日)/g;
-  const year = dates.match(yearPattern)[0];
-  let dateMatches = dates.match(datePattern);
-  dateMatches = dateMatches.map((match) => {
+  const year = parseInt(dates.match(yearPattern)[0].slice(0, -1))  + 1911;
+  const dateMatches = dates.match(datePattern);
+  dates = dateMatches.map((match) => {
     const [month, day] = match.match(/(\d+)/g);
-    return `${month.padStart(2, '0')}月${day.padStart(2, '0')}日`;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   });
-  dates = dateMatches.join('／');
-  return year + dates;
+  return dates;
 }
 
 function getLegislators(term) {
