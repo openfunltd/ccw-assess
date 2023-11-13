@@ -50,36 +50,46 @@ async function main(tableId) {
       rowsData.push(rowData);
       continue;
     }
-    let attendees = meeting.議事錄.出席委員.join(" ");
-    let oral = meeting.議事錄.口頭質詢;
-    oral = (oral === undefined) ? "" : oral.join(" ");
-    let written = meeting.議事錄.書面質詢;
-    written = (written === undefined) ? "" : written.join(" ");
+    const dates = formatDates(meeting.議事錄.時間);
+    let title = meeting.title;
+    const attendees = meeting.議事錄.出席委員.join(" ");
+    const interpellations = meeting.議事錄.質詢;
     let leaveList = meeting.議事錄.請假委員;
     leaveList = (leaveList === undefined) ? "" : leaveList.join(" ");
-    let oralMax = (oral === "") ? 0 : 1;
-    rowData.push(formatDates(meeting.議事錄.時間), meeting.title, attendees);
-    rowData.push(oral, written, leaveList);
-    rowData.push(meeting.議事錄.主席);
-    for (const name of comtLegislators) {
-      const attended = (attendees.includes(name)) ? 1 : 0;
-      const leave = (leaveList.includes(name)) ? 1 : 0;
-      const absent = ([attended, leave] === [0, 0]) ? 1 : 0;
-      const hasOral = (oral.includes(name)) ? 1 : 0;
-      const hasWritten = (written.includes(name)) ? 1 : 0;
-      let writtenCount = 0;
-      if (oralMax > hasOral) {
-        writtenCount = (hasOral + hasWritten > oralMax) ? oralMax - hasOral : hasWritten;
+    for (const [i, date] of dates.entries()) {
+      rowData = [];
+      if (dates.length > 1) { title = `${meeting.title}-${i+1}` };
+      rowData.push(date, title, attendees);
+      let [oral, written] = [[], []];
+      if (interpellations != undefined) {
+        oral = interpellations.filter(item => item.日期 === date && item.種類 === "口頭質詢");
+        if (oral.length > 0) { oral = oral[0].委員.join(" "); }
+        written = interpellations.filter(item => item.日期 === date && item.種類 === "書面質詢");
+        if (written.length > 0) { written = written[0].委員.join(" "); }
       }
-      rowData.push(attended, leave, absent, hasOral, hasWritten, writtenCount);
+      rowData.push(oral, written, leaveList, meeting.議事錄.主席);
+      let oralMax = (oral.length > 0) ? 1 : 0;
+      for (const name of comtLegislators) {
+        const attended = (attendees.includes(name)) ? 1 : 0;
+        const leave = (leaveList.includes(name)) ? 1 : 0;
+        const absent = ([attended, leave] === [0, 0]) ? 1 : 0;
+        const hasOral = (oral.includes(name)) ? 1 : 0;
+        const hasWritten = (written.includes(name)) ? 1 : 0;
+        let writtenCount = 0;
+        if (oralMax > hasOral) {
+          writtenCount = (hasOral + hasWritten > oralMax) ? oralMax - hasOral : hasWritten;
+        }
+        rowData.push(attended, leave, absent, hasOral, hasWritten, writtenCount);
+      }
+      rowData.push(oralMax);
+      rowsData.push(rowData);
     }
-    rowData.push(oralMax);
-    rowsData.push(rowData);
   }
 
   const table = $('#' + tableId).DataTable({
     keys: true,
     scrollX: true,
+    fixedColumns: {left: 2},
     columnDefs: [
         { orderable: false, targets: 'nosort' }
     ],
@@ -87,7 +97,8 @@ async function main(tableId) {
     dom: '<<"row"<"col"B><"col filter_adjust"f>>>rtip',
     buttons: [
         'pageLength', 'copy', 'excel'
-    ]
+    ],
+    order: [0, 'asc'],
   });
 
   table.rows.add(rowsData).draw(false);
