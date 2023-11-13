@@ -11,8 +11,8 @@ async function main(tableId) {
   sessionPeriod = encodeURIComponent(sessionPeriod);
   comtCd = encodeURIComponent(pathname_comtCd[1]);
 
-  $(document).prop('title', `A2 A3 ${term}-${sessionPeriod} 外交及委員會出席及質詢`);
-  $("#title").text(`A2 A3 ${term}-${sessionPeriod} 外交及國防委員會出席及質詢`);
+  $(".term-session").text(`${term}-${sessionPeriod}`);
+  $(document).prop('title', $("#title").text());
 
   let comtLegislators = [];
   let comtIndex = 0;
