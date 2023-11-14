@@ -40,9 +40,14 @@ async function main(tableId) {
   }
   
   for (const [comtCd, members] of Object.entries(committeeMembers)) {
-    rowsData = [];
+    const membersCnt = members.length;
+    let rowsData = [];
     let shouldAttendCnt = 0;
     let canOralCnt = 0;
+    let membersAttendanceCnt = Array(membersCnt).fill(0);
+    let membersOralCnt = Array(membersCnt).fill(0);
+    let membersWrittenCnt = Array(membersCnt).fill(0);
+    let membersWrittenValidCnt = Array(membersCnt).fill(0);
     const meetings = await getMeetings(term, sessionPeriod, comtCd);
     for (const meeting of meetings) {
       if(meeting.meet_type === "聯席會議" && !meeting.id.startsWith(`${term}-${sessionPeriod}-${comtCd}`, 5)) {
@@ -54,21 +59,64 @@ async function main(tableId) {
       const interpellations = meeting.議事錄.質詢;
       const leaveList = meeting.議事錄.請假委員;
       for (const [i, date] of dates.entries()) {
-        if (i===0) { shouldAttendCnt = shouldAttendCnt + 1; }
+        if (i===0) { 
+          shouldAttendCnt = shouldAttendCnt + 1;
+          for (const [memberIdx, member] of members.entries()) {
+            if (attendees.includes(member)) { ++membersAttendanceCnt[memberIdx]; }
+          }
+        }
         let [oral, written] = [[], []];
         if (interpellations != undefined) {
           oral = interpellations.filter(item => item.日期 === date && item.種類 === "口頭質詢");
           if (oral.length > 0) {
             oral = oral[0].委員;
             canOralCnt = canOralCnt + 1;
+            /*
+            for (const [memberIdx, member] of members.entries()) {
+              if (oral.includes(member)) { ++membersOralCnt[memberIdx]; }
+            }
+            */
           }
           written = interpellations.filter(item => item.日期 === date && item.種類 === "書面質詢");
           if (written.length > 0) { written = written[0].委員 }
         }
+        let oralMax = (oral.length > 0) ? 1 : 0;
+        for (const [memberIdx, member] of members.entries()) {
+          if (oral.includes(member)) { ++membersOralCnt[memberIdx]; }
+          const hasOral = (oral.includes(member)) ? 1 : 0;
+          const hasWritten = (written.includes(member)) ? 1 : 0;
+          membersWrittenCnt[memberIdx] = membersWrittenCnt[memberIdx] + hasWritten;
+          let writtenValidCnt = 0;
+          if (oralMax > hasOral) {
+            writtenValidCnt = (hasOral + hasWritten > oralMax) ? oralMax - hasOral : hasWritten;
+          }
+          membersWrittenValidCnt[memberIdx] = membersWrittenValidCnt[memberIdx] + writtenValidCnt;
+        }
       }
     }
-    rowsData.push(["應出席次數"].concat(Array(members.length).fill(shouldAttendCnt)));
-    rowsData.push(["可質詢次數"].concat(Array(members.length).fill(canOralCnt)));
+    let membersAttendanceRate = Array(membersCnt);
+    let membersAttendanceScore = Array(membersCnt);
+    let membersInterpellationRate = Array(membersCnt);
+    let membersInterpellationScore = Array(membersCnt);
+    for (let i = 0; i < membersCnt; i++) {
+      membersAttendanceRate[i] = membersAttendanceCnt[i] / shouldAttendCnt;
+      membersAttendanceScore[i] = (membersAttendanceRate[i] * 7).toFixed(2);
+      membersAttendanceRate[i] = membersAttendanceRate[i].toFixed(2) * 100 + "%";
+      membersInterpellationRate[i] = membersOralCnt[i] / canOralCnt;
+      const [x, y, z] = [membersOralCnt[i], membersWrittenValidCnt[i], canOralCnt];
+      membersInterpellationScore[i] = ((x * 20 + y * 10) / z).toFixed(2);
+      membersInterpellationRate[i] = membersInterpellationRate[i].toFixed(2) * 100 + "%";
+    }
+    rowsData.push(["實際出席次數"].concat(membersAttendanceCnt));
+    rowsData.push(["應出席次數"].concat(Array(membersCnt).fill(shouldAttendCnt)));
+    rowsData.push(["出席率"].concat(membersAttendanceRate));
+    rowsData.push(["委員會出席分數（7%）"].concat(membersAttendanceScore));
+    rowsData.push(["實際質詢次數"].concat(membersOralCnt));
+    rowsData.push(["可質詢次數"].concat(Array(membersCnt).fill(canOralCnt)));
+    rowsData.push(["書面質詢次數"].concat(membersWrittenCnt));
+    rowsData.push(["書面質詢次數"].concat(membersWrittenValidCnt));
+    rowsData.push(["質詢率"].concat(membersInterpellationRate));
+    rowsData.push(["質詢分數（20%）"].concat(membersInterpellationScore));
     const table = $(`#${tableId}-${comtCd}`).DataTable({
       keys: true,
       scrollX: true,
@@ -116,6 +164,7 @@ function getLegislators(term) {
     });
   });
 }
+
 function getType1Committees() {
   return new Promise((resolve, reject) => {
     $.getJSON("https://ly.govapi.tw/committee", function(data) {
