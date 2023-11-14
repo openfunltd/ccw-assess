@@ -145,6 +145,7 @@ function getMeetings(term, sessionPeriod, comtCd) {
 }
 
 function formatDates(dates) {
+  dates = dates.replace("曰", "日");
   const yearPattern = /(\d+年)/g;
   const datePattern = /(\d+月\d+日)/g;
   const year = parseInt(dates.match(yearPattern)[0].slice(0, -1))  + 1911;
