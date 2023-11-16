@@ -51,12 +51,15 @@ async function main(tableId) {
       if (dates.includes(content.date)) { acc[content.date] = content.meetingContent };
       return acc;
     }, {});
+    console.log(meetingContent);
+    console.log(meeting.id);
     let title = meeting.title;
     const attendees = meeting.議事錄.出席委員.join(" ");
     const interpellations = meeting.議事錄.質詢;
     let leaveList = meeting.議事錄.請假委員;
     leaveList = (leaveList === undefined) ? "" : leaveList.join(" ");
     for (const [i, date] of dates.entries()) {
+      if (meetingContent[date] === undefined) { continue; }
       if (["審查"].some(word => !meetingContent[date].includes(word))) { continue; }
       if (dates.length > 1) { title = `${meeting.title}-${i+1}` };
       rowData = [comtName, date, title, meetingContent[date]];
