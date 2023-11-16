@@ -39,6 +39,7 @@ async function main(tableId) {
     if (meeting.meet_type === "聯席會議" && !meeting.id.startsWith(`${term}-${sessionPeriod}-${comtCd}`, 5)) {
       continue;
     }
+    if (meeting.發言紀錄 === undefined) { continue; }
     let rowData = [];
     if (meeting.議事錄 === undefined){
       rowData.push(meeting.id, meeting.title);
@@ -46,41 +47,18 @@ async function main(tableId) {
       rowsData.push(rowData);
       continue;
     }
-    const dates = formatDates(meeting.議事錄.時間);
-    const meetingContent = meeting.meet_data.reduce((acc, content) => {
-      if (dates.includes(content.date)) { acc[content.date] = content.meetingContent };
-      return acc;
-    }, {});
-    console.log(meetingContent);
-    console.log(meeting.id);
-    let title = meeting.title;
-    const attendees = meeting.議事錄.出席委員.join(" ");
-    const interpellations = meeting.議事錄.質詢;
-    let leaveList = meeting.議事錄.請假委員;
-    leaveList = (leaveList === undefined) ? "" : leaveList.join(" ");
+    const dates = meeting.發言紀錄.map(record => record.smeetingDate);
     for (const [i, date] of dates.entries()) {
-      if (meetingContent[date] === undefined) { continue; }
-      if (["審查"].some(word => !meetingContent[date].includes(word))) { continue; }
+      const commentRecord = meeting.發言紀錄[i];
+      const meetingContent = commentRecord.meetingContent;
+      if (!meetingContent.includes("審查")) { continue; }
+      let title = commentRecord.meetingName;
       if (dates.length > 1) { title = `${meeting.title}-${i+1}` };
-      rowData = [comtName, date, title, meetingContent[date]];
-      let [chairperson, oral, written] = [meeting.議事錄.主席, [], []];
-      if (interpellations != undefined) {
-        oral = interpellations.filter(item => item.日期 === date && item.種類 === "口頭質詢");
-        if (oral.length > 0) { 
-          oral = oral[0].委員;
-          oral.pop(chairperson);
-        }
-        written = interpellations.filter(item => item.日期 === date && item.種類 === "書面質詢");
-        if (written.length > 0) { 
-          written = written[0].委員;
-          written.pop(chairperson)
-        }
-      }
-      //Still need to be clarify how to determine List of legislators had deliberate bills 
-      const budgetDeliberation = [`${chairperson}（主席）`].concat(oral, written) ;
-      rowData.push(budgetDeliberation.join("、"));
+      const deliberation = commentRecord.legislatorNameList;
+      rowData = [comtName, date, title, meetingContent];
+      rowData.push(deliberation.join("、"));
       for (const name of comtLegislators) {
-        const hasDeliberate = (budgetDeliberation.includes(name)) ? 1 : 0;
+        const hasDeliberate = (deliberation.includes(name)) ? 1 : 0;
         rowData.push(hasDeliberate);
       }
       rowData.push(1);
@@ -116,18 +94,6 @@ function getMeetings(term, sessionPeriod, comtCd) {
       resolve(data.meets);
     });
   });
-}
-
-function formatDates(dates) {
-  const yearPattern = /(\d+年)/g;
-  const datePattern = /(\d+月\d+日)/g;
-  const year = parseInt(dates.match(yearPattern)[0].slice(0, -1))  + 1911;
-  const dateMatches = dates.match(datePattern);
-  dates = dateMatches.map((match) => {
-    const [month, day] = match.match(/(\d+)/g);
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  });
-  return dates;
 }
 
 function getLegislators(term) {
