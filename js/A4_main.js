@@ -24,12 +24,39 @@ async function main(tableId) {
     }
   }
 
+  const meetings = await getMeetings(term, sessionPeriod);
+  let committeesMeetings = Array.from({ length: 8 }, () => []);
+
+  for (const meeting of meetings) {
+    if (meeting.meet_type === "院會") { continue; }
+    for (const [comtIdx, comtCd] of standingComtsCode.entries()) {
+      if (meeting.發言紀錄 === undefined) { continue; }
+      if (meeting.committees === null || !meeting.committees.includes(comtCd)) { continue; }
+      if (meeting.meet_type === "聯席會議" && !meeting.id.startsWith(`${term}-${sessionPeriod}-${comtCd}`, 5)) {
+        continue;
+      }
+      const dates = meeting.發言紀錄.map(record => record.smeetingDate);
+      for (const [dateIdx, date] of dates.entries()) {
+        const commentRecord = meeting.發言紀錄[dateIdx];
+        const meetingContent = commentRecord.meetingContent;
+        if (!meetingContent.includes("審查")) { continue; }
+        committeesMeetings[comtIdx].push(commentRecord);
+      }
+    }
+  }
+
   let rowsData = [];
   for (const [i, comtLegislators] of committeesLegislators.entries()) {
     const comtName = type1Committees[standingComtsCode[i]];
     for (const legislator of comtLegislators){
       let rowData = [];
-      rowData.push(comtName, legislator.party, legislator.name, "-", "-", "-");
+      const canDeliberateCnt = committeesMeetings[i].length;
+      const hasDeliberateCnt = committeesMeetings[i].filter(function(record){
+        return record.legislatorNameList.includes(legislator.name);
+      }).length;
+      const deliberateScore = ((hasDeliberateCnt / canDeliberateCnt) * 20).toFixed(2);
+      rowData.push(comtName, legislator.party, legislator.name);
+      rowData.push(canDeliberateCnt, hasDeliberateCnt, deliberateScore);
       rowsData.push(rowData);
     }
   }
