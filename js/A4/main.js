@@ -39,22 +39,16 @@ async function main(tableId) {
     if (meeting.meet_type === "聯席會議" && !meeting.id.startsWith(`${term}-${sessionPeriod}-${comtCd}`, 5)) {
       continue;
     }
-    if (meeting.發言紀錄 === undefined) { continue; }
+    if (meeting.公報發言紀錄 === undefined) { continue; }
     let rowData = [];
-    if (meeting.議事錄 === undefined){
-      rowData.push(meeting.id, meeting.title);
-      rowData.push(...Array(6 + comtLegislators.length * 6).fill(""));
-      rowsData.push(rowData);
-      continue;
-    }
-    const dates = meeting.發言紀錄.map(record => record.smeetingDate);
+    const dates = formatDates(meeting.議事錄.時間);
     for (const [i, date] of dates.entries()) {
-      const commentRecord = meeting.發言紀錄[i];
-      const meetingContent = commentRecord.meetingContent;
+      const commentRecord = meeting.公報發言紀錄[i];
+      const meetingContent = commentRecord.content;
       if (!meetingContent.includes("審查")) { continue; }
-      let title = commentRecord.meetingName;
+      let title = commentRecord.meet_name;
       if (dates.length > 1) { title = `${meeting.title}-${i+1}` };
-      const deliberation = commentRecord.legislatorNameList;
+      const deliberation = commentRecord.speakers;
       rowData = [comtName, date, title, meetingContent];
       rowData.push(deliberation.join("、"));
       for (const name of comtLegislators) {
@@ -94,6 +88,19 @@ function getMeetings(term, sessionPeriod, comtCd) {
       resolve(data.meets);
     });
   });
+}
+
+function formatDates(dates) {
+  dates = dates.replace("曰", "日");
+  const yearPattern = /(\d+年)/g;
+  const datePattern = /(\d+月\d+日)/g;
+  const year = parseInt(dates.match(yearPattern)[0].slice(0, -1))  + 1911;
+  const dateMatches = dates.match(datePattern);
+  dates = dateMatches.map((match) => {
+    const [month, day] = match.match(/(\d+)/g);
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  });
+  return dates;
 }
 
 function getLegislators(term) {

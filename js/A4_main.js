@@ -30,15 +30,15 @@ async function main(tableId) {
   for (const meeting of meetings) {
     if (meeting.meet_type === "院會") { continue; }
     for (const [comtIdx, comtCd] of standingComtsCode.entries()) {
-      if (meeting.發言紀錄 === undefined) { continue; }
+      if (meeting.公報發言紀錄 === undefined) { continue; }
       if (meeting.committees === null || !meeting.committees.includes(comtCd)) { continue; }
       if (meeting.meet_type === "聯席會議" && !meeting.id.startsWith(`${term}-${sessionPeriod}-${comtCd}`, 5)) {
         continue;
       }
-      const dates = meeting.發言紀錄.map(record => record.smeetingDate);
+      const dates = formatDates(meeting.議事錄.時間);
       for (const [dateIdx, date] of dates.entries()) {
-        const commentRecord = meeting.發言紀錄[dateIdx];
-        const meetingContent = commentRecord.meetingContent;
+        const commentRecord = meeting.公報發言紀錄[dateIdx];
+        const meetingContent = commentRecord.content;
         if (!meetingContent.includes("審查")) { continue; }
         committeesMeetings[comtIdx].push(commentRecord);
       }
@@ -52,7 +52,7 @@ async function main(tableId) {
       let rowData = [];
       const canDeliberateCnt = committeesMeetings[i].length;
       const hasDeliberateCnt = committeesMeetings[i].filter(function(record){
-        return record.legislatorNameList.includes(legislator.name);
+        return record.speakers.includes(legislator.name);
       }).length;
       const deliberateScore = ((hasDeliberateCnt / canDeliberateCnt) * 20).toFixed(2);
       rowData.push(comtName, legislator.party, legislator.name);
@@ -89,6 +89,19 @@ function getMeetings(term, sessionPeriod) {
       resolve(data.meets);
     });
   });
+}
+
+function formatDates(dates) {
+  dates = dates.replace("曰", "日");
+  const yearPattern = /(\d+年)/g;
+  const datePattern = /(\d+月\d+日)/g;
+  const year = parseInt(dates.match(yearPattern)[0].slice(0, -1))  + 1911;
+  const dateMatches = dates.match(datePattern);
+  dates = dateMatches.map((match) => {
+    const [month, day] = match.match(/(\d+)/g);
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  });
+  return dates;
 }
 
 function getLegislators(term) {
