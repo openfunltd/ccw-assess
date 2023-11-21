@@ -36,8 +36,12 @@ async function main(tableId) {
         continue;
       }
       const dates = formatDates(meeting.議事錄.時間);
+      let commentRecords = meeting.公報發言紀錄;
+      if (commentRecords.length > dates.length) {
+        commentRecords = commentRecords.filter((record) => record.speakers.length > 1)
+      }
       for (const [dateIdx, date] of dates.entries()) {
-        const commentRecord = meeting.公報發言紀錄[dateIdx];
+        const commentRecord = commentRecords[dateIdx];
         const meetingContent = commentRecord.content;
         if (!meetingContent.includes("審查")) { continue; }
         committeesMeetings[comtIdx].push(commentRecord);
