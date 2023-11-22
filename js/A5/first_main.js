@@ -71,7 +71,7 @@ async function main(tableId) {
   const table = $(`#${tableId}`).DataTable({
     keys: true,
     scrollX: true,
-    fixedColumns: {left: 2},
+    fixedColumns: {left: 3},
     columnDefs: [
         { orderable: false, targets: 'nosort' }
     ],
