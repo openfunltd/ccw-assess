@@ -24,6 +24,13 @@ async function main(tableId) {
     }
   }
 
+  let partyGroups = legislators.reduce(function (acc, curr) {
+    const partyGroup = curr.partyGroup;
+    if (partyGroup != "0無" && !acc.includes(partyGroup)) { acc.push(partyGroup) };
+    return acc;
+  }, []);
+  partyGroups = partyGroups.map((partyGroup) => `${partyGroup}立法院黨團`);
+
   const tdHead0 = $("#head-row-0");
   const tdHead1 = $("#head-row-1");
   const tdHead2 = $("#head-row-2");
@@ -36,10 +43,15 @@ async function main(tableId) {
       tdHead2.append(`<td class="dt-head-center nosort">${legislator.name}</td>`);
     }
   }
-  
+
+  for (partyGroup of partyGroups) {
+    tdHead0.append(`<td class="dt-head-center nosort" rowspan="3">${partyGroup}</td>`);
+  }
+
   let rowsData = [];
   let orderedLegislators = committeesLegislators.reduce((acc, curr) => acc.concat(curr), []);
   orderedLegislators = orderedLegislators.map((legislator) => legislator.name);
+  const orderedLegislatorsGroups = orderedLegislators.concat(partyGroups);
   const bills = await getLegislatorLawBills(term, sessionPeriod);
   for (bill of bills) {
     let rowData = [];
@@ -49,8 +61,8 @@ async function main(tableId) {
     billName = billName.substring(startIdx + 1, endIdx);
     let theFirst = "No Data";
     if (bill.提案人 != undefined) { theFirst = bill.提案人[0] };
-    let data = Array.from({ length: orderedLegislators.length }).fill(0); 
-    theFirstIdx = orderedLegislators.indexOf(theFirst);
+    let data = Array.from({ length: orderedLegislatorsGroups.length }).fill(0);
+    theFirstIdx = orderedLegislatorsGroups.indexOf(theFirst);
     if (theFirstIdx > -1) { data[theFirstIdx] = 1 };
     rowData.push(billName, bill.提案編號, theFirst, ...data);
     rowsData.push(rowData);
