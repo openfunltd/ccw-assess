@@ -54,6 +54,7 @@ async function main(tableId) {
   const orderedLegislatorsGroups = orderedLegislators.concat(partyGroups);
   const bills = await getLegislatorLawBills(term, sessionPeriod);
   for (bill of bills) {
+    if (bill.議案名稱.includes("擬撤回前提之")) { continue };
     let rowData = [];
     let billName = bill.議案名稱;
     const startIdx = billName.indexOf("「");
@@ -61,6 +62,7 @@ async function main(tableId) {
     billName = billName.substring(startIdx + 1, endIdx);
     let theFirst = "No Data";
     if (bill.提案人 != undefined) { theFirst = bill.提案人[0] };
+    if (theFirst === "No Data") { console.log(bill.billNo) }
     let data = Array.from({ length: orderedLegislatorsGroups.length }).fill(0);
     theFirstIdx = orderedLegislatorsGroups.indexOf(theFirst);
     if (theFirstIdx > -1) { data[theFirstIdx] = 1 };
