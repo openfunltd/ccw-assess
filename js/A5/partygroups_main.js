@@ -61,8 +61,8 @@ async function main() {
     const startIdx = billName.indexOf("「");
     const endIdx = billName.indexOf("」");
     billName = billName.substring(startIdx + 1, endIdx);
-    const theFirst = (bill.提案人 >= 2) ? bill.提案人[1] : "No Data";
-    const nonFirst = (bill.提案人 >= 3) ? bill.提案人.slice(2).join("、") : "No Data";
+    const theFirst = (bill.提案人.length >= 2) ? bill.提案人[1] : "No Data";
+    const nonFirst = (bill.提案人.length >= 3) ? bill.提案人.slice(2).join("、") : "No Data";
     rowData.push(bill.first_time, billName, bill.提案編號, theFirst, nonFirst, "WIP");
     partyGroupsBills[idx].push(rowData);
   }
