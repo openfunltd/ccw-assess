@@ -49,6 +49,24 @@ async function main() {
   }
   htmlBody.append("<br><br><br>")
 
+  const bills = await getLegislatorLawBills(term, sessionPeriod);
+  let partyGroupsBills = Array.from({ length: partyGroups.length }, () => []);
+  for (const bill of bills) {
+    if (bill.議案名稱.includes("擬撤回前提之")) { continue };
+    if (bill.提案人 === undefined) { continue };
+    const idx = partyGroups.indexOf(bill.提案人[0])
+    if (idx === -1) { continue };
+    let rowData = [];
+    let billName = bill.議案名稱;
+    const startIdx = billName.indexOf("「");
+    const endIdx = billName.indexOf("」");
+    billName = billName.substring(startIdx + 1, endIdx);
+    const theFirst = (bill.提案人 >= 2) ? bill.提案人[1] : "No Data";
+    const nonFirst = (bill.提案人 >= 3) ? bill.提案人.slice(2).join("、") : "No Data";
+    rowData.push(bill.first_time, billName, bill.提案編號, theFirst, nonFirst, "WIP");
+    partyGroupsBills[idx].push(rowData);
+  }
+
   for (const [idx, partyGroup] of partyGroups.entries()) {
     const table = $(`#A5-${idx}`).DataTable({
       keys: true,
@@ -60,6 +78,7 @@ async function main() {
       ],
       order: [0, 'asc'],
     });
+    table.rows.add(partyGroupsBills[idx]).draw(false);
   }
 }
 
@@ -68,6 +87,16 @@ function getLegislators(term) {
     const url = `https://ly.govapi.tw/legislator/${term}?limit=300`;
     $.getJSON(url, function(data) {
       resolve(data.legislators);
+    });
+  });
+}
+
+function getLegislatorLawBills(term, sessionPeriod) {
+  return new Promise((resolve, reject) => {
+    const url = `https://ly.govapi.tw/bill/?term=${term}&sessionPeriod=${sessionPeriod}` +
+      "&bill_type=法律案&proposal_type=委員提案&limit=2000";
+    $.getJSON(url, function(data) {
+      resolve(data.bills);
     });
   });
 }
