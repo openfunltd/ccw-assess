@@ -57,9 +57,14 @@ async function main(tableId) {
     if (bill.議案名稱.includes("擬撤回前提之")) { continue };
     let rowData = [];
     let billName = bill.議案名稱;
-    const startIdx = billName.indexOf("「");
-    const endIdx = billName.indexOf("」");
-    billName = billName.substring(startIdx + 1, endIdx);
+    if (billName.substring(0, 2) === "廢止") {
+      billName = billName.split("，")[0];
+      billName = billName.replace(/[「」]/g, '');
+    } else {
+      const startIdx = billName.indexOf("「");
+      const endIdx = billName.indexOf("」");
+      billName = billName.substring(startIdx + 1, endIdx);
+    }
     let theFirst = "No Data";
     if (bill.提案人 != undefined) { theFirst = bill.提案人[0] };
     let data = Array.from({ length: orderedLegislatorsGroups.length }).fill(0);

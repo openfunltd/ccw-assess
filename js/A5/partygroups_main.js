@@ -58,9 +58,14 @@ async function main() {
     if (idx === -1) { continue };
     let rowData = [];
     let billName = bill.議案名稱;
-    const startIdx = billName.indexOf("「");
-    const endIdx = billName.indexOf("」");
-    billName = billName.substring(startIdx + 1, endIdx);
+    if (billName.substring(0, 2) === "廢止") {
+      billName = billName.split("，")[0];
+      billName = billName.replace(/[「」]/g, '');
+    } else {
+      const startIdx = billName.indexOf("「");
+      const endIdx = billName.indexOf("」");
+      billName = billName.substring(startIdx + 1, endIdx);
+    }
     const theFirst = (bill.提案人.length >= 2) ? bill.提案人[1] : "No Data";
     const nonFirst = (bill.提案人.length >= 3) ? bill.提案人.slice(2).join("、") : "No Data";
     rowData.push(bill.first_time, billName, bill.提案編號, theFirst, nonFirst, "WIP");
