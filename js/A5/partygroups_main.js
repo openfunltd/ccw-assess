@@ -49,7 +49,11 @@ async function main() {
   }
   htmlBody.append("<br><br><br>")
 
-  const bills = await getLegislatorLawBills(term, sessionPeriod);
+  let currentSessionBills = await getLegislatorLawBills(term, sessionPeriod);
+  currentSessionBills = currentSessionBills.filter((bill) => bill.meet_id.split("-")[2] === sessionPeriod);
+  let nextSessionBills = await getLegislatorLawBills(term, parseInt(sessionPeriod) + 1);
+  nextSessionBills = nextSessionBills.filter((bill) => bill.meet_id.split("-")[2] === sessionPeriod);
+  const bills = currentSessionBills.concat(nextSessionBills);
   let partyGroupsBills = Array.from({ length: partyGroups.length }, () => []);
   for (const bill of bills) {
     if (bill.議案名稱.includes("擬撤回前提之")) { continue };

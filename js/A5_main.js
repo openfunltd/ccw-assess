@@ -52,7 +52,11 @@ async function main(tableId) {
     comtsMembersNonFirstCnt[comtCd] = Array(members.length).fill(0);
   }
 
-  const bills = await getLegislatorLawBills(term, sessionPeriod);
+  let currentSessionBills = await getLegislatorLawBills(term, sessionPeriod);
+  currentSessionBills = currentSessionBills.filter((bill) => bill.meet_id.split("-")[2] === sessionPeriod);
+  let nextSessionBills = await getLegislatorLawBills(term, parseInt(sessionPeriod) + 1);
+  nextSessionBills = nextSessionBills.filter((bill) => bill.meet_id.split("-")[2] === sessionPeriod);
+  const bills = currentSessionBills.concat(nextSessionBills);
   for (bill of bills) {
     if (bill.議案名稱.includes("擬撤回前提之")) { continue };
     if (bill.提案人 === undefined) { continue };
