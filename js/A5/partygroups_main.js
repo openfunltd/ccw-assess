@@ -99,7 +99,7 @@ function getLegislators(term) {
 function getLegislatorLawBills(term, sessionPeriod) {
   return new Promise((resolve, reject) => {
     const url = `https://ly.govapi.tw/bill/?term=${term}&sessionPeriod=${sessionPeriod}` +
-      "&bill_type=法律案&proposal_type=委員提案&limit=2000";
+      "&bill_type=法律案&bill_type=修憲案&proposal_type=委員提案&limit=2000";
     $.getJSON(url, function(data) {
       resolve(data.bills);
     });
