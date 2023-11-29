@@ -31,19 +31,6 @@ async function main(tableId) {
   }, []);
   partyGroups = partyGroups.map((partyGroup) => `${partyGroup}立法院黨團`);
 
-  const tdHead0 = $("#head-row-0");
-  const tdHead1 = $("#head-row-1");
-  const tdHead2 = $("#head-row-2");
-
-  for (const [comtIdx ,comtLegislators] of committeesLegislators.entries()) {
-   const comtName = type1Committees[standingComtsCode[comtIdx]];
-    for (const legislator of comtLegislators) {
-      tdHead0.append(`<td class="dt-head-center">${comtName}</td>`);
-      tdHead1.append(`<td class="dt-head-center">${legislator.party}</td>`);
-      tdHead2.append(`<td class="dt-head-center nosort">${legislator.name}</td>`);
-    }
-  }
-
   let rowsData = [];
   let orderedLegislators = committeesLegislators.reduce((acc, curr) => acc.concat(curr), []);
   orderedLegislators = orderedLegislators.map((legislator) => legislator.name);
@@ -52,13 +39,10 @@ async function main(tableId) {
   currentSessionBills = currentSessionBills.filter((bill) => bill.meet_id.split("-")[2] === sessionPeriod);
   let nextSessionBills = await getLegislatorLawBills(term, parseInt(sessionPeriod) + 1);
   nextSessionBills = nextSessionBills.filter((bill) => bill.meet_id.split("-")[2] === sessionPeriod);
-  const bills = currentSessionBills.concat(nextSessionBills);
+  let bills = currentSessionBills.concat(nextSessionBills);
 
-  //TODO Filter out mergedlikeBills here
-  let mergedlikeBills = bills;
-  for (bill of mergedlikeBills) {
-    if (bill.議案名稱.includes("擬撤回前提之")) { continue };
-    let rowData = [];
+  bills = bills.filter((bill) => !bill.議案名稱.includes("擬撤回前提之"));
+  biils = bills.map(function (bill) {
     let billName = bill.議案名稱;
     if (billName.substring(0, 2) === "廢止") {
       billName = billName.split("，")[0];
@@ -69,30 +53,99 @@ async function main(tableId) {
       billName = billName.substring(startIdx + 1, endIdx);
     }
     let theFirst = "No Data";
-    if (bill.提案人 != undefined) { theFirst = bill.提案人[0] };
-    if (partyGroups.includes(theFirst)) { 
-      theFirst = (bill.提案人.length >= 2) ? bill.提案人[1] : "No Data";
-    }; 
-    let data = Array.from({ length: orderedLegislatorsGroups.length - partyGroups.length }).fill(0);
-    theFirstIdx = orderedLegislatorsGroups.indexOf(theFirst);
-    if (theFirstIdx > -1) { data[theFirstIdx] = 1 };
-    rowData.push("WIP", bill.first_time, billName, bill.提案編號, theFirst, "WIP", ...data)
+    let nonFirst = "No Data";
+    let nonFirstArr = [];
+    if (bill.提案人 != undefined) {
+      theFirst = bill.提案人[0];
+      nonFirstArr = bill.提案人.slice(1);
+    };
+    if (nonFirstArr.length > 0) { nonFirst = nonFirstArr.join("、") };
+    bill.billName = billName;
+    bill.theFirst = theFirst;
+    bill.nonFirst = nonFirst;
+    bill.nonFirstArr = nonFirstArr;
+    return bill;
+  });
+
+  let mergedlikeBills = [];
+  let mergeIdx = 0;
+  for (const member of orderedLegislatorsGroups) {
+    const memberBills = bills.filter((bill) => member === bill.theFirst );
+    let mergedBillGroups = {};
+    for (const bill of memberBills) {
+      const billName = bill.billName;
+      const organicLawEndIdx = billName.indexOf("組織法");
+      let actName = "";
+      let departNameEndIdx = -1;
+      let actNameEndIdx = -1;
+      if (organicLawEndIdx > -1) {
+        const departNameEndIdx0 = billName.indexOf("部");
+        const departNameEndIdx1 = billName.indexOf("委員會");
+        const departNameEndIdx2 = billName.indexOf("局");
+        let departNameEndIdxArr = [departNameEndIdx0, departNameEndIdx1, departNameEndIdx2];
+        departNameEndIdxArr = departNameEndIdxArr.filter((idx) => idx > -1 && idx < organicLawEndIdx);
+        departNameEndIdx = Math.min(...departNameEndIdxArr);
+        if (departNameEndIdx === departNameEndIdx1){
+          actName = billName.substring(0, departNameEndIdx + 4) + "組織法";
+        } else {
+          actName = billName.substring(0, departNameEndIdx + 1) + "組織法";
+        }
+      } else {
+        const actNameEndIdx0 = billName.indexOf("法");
+        const actNameEndIdx1 = billName.indexOf("條例");
+        actNameEndIdx = (actNameEndIdx0 >= actNameEndIdx1) ? actNameEndIdx0 : actNameEndIdx1;
+        if (actNameEndIdx === actNameEndIdx0){
+          actName = billName.substring(0, actNameEndIdx + 1);
+        } else {
+          actName = billName.substring(0, actNameEndIdx + 2);
+        }
+      }
+      if (Object.keys(mergedBillGroups).includes(actName)) {
+        mergedBillGroups[actName].push(bill);
+      } else {
+        mergedBillGroups[actName] = [bill];
+      }
+    }
+    const aloneBills = Object.values(mergedBillGroups)
+      .filter(val => val.length === 1)
+      .flatMap(val => val);
+    mergedBillGroups = Object.fromEntries(
+      Object.entries(mergedBillGroups).filter(([key, val]) => val.length !== 1)
+    );
+    for (const [actName, mergedBills] of Object.entries(mergedBillGroups)) {
+      ++mergeIdx;
+      const mergeNo = `${term}-${sessionPeriod}-${mergeIdx}`;
+      const mergeNote = (actName.includes("組織法")) ? `可能為不同法同目的-${actName}修訂` : "可能為同法修正";
+      mergedBillGroups[actName] = mergedBills.map(function (bill) {
+        bill.mergeNo = mergeNo;
+        bill.mergeNote = mergeNote;
+        return bill;
+      });
+      mergedlikeBills = mergedlikeBills.concat(mergedBillGroups[actName]);
+    }
+    mergedlikeBills = mergedlikeBills.concat(aloneBills);
+  }
+  mergedlikeBills = mergedlikeBills.concat(bills.filter((bill) => bill.theFirst === "No Data"));
+
+  for (const bill of mergedlikeBills) {
+    let rowData = [];
+    const mergeNo = (bill.mergeNo === undefined) ? "" : bill.mergeNo;
+    const mergeNote = (bill.mergeNote === undefined) ? "" : bill.mergeNote;
+    rowData.push(mergeNo, bill.first_time, bill.billName, bill.提案編號);
+    rowData.push(bill.theFirst, bill.nonFirst, mergeNote);
     rowsData.push(rowData);
   }
 
   const table = $(`#${tableId}`).DataTable({
     keys: true,
     scrollX: true,
-    //fixedColumns: {left: 3},
-    columnDefs: [
-        { orderable: false, targets: 'nosort' }
-    ],
+    order: [],
+    columnDefs: [{targets: "nosort", orderable: false}],
     fixedHeader: true,
     dom: '<<"row"<"col"B><"col filter_adjust"f>>>rtip',
     buttons: [
         'pageLength', 'copy', 'excel'
     ],
-    order: [1, 'asc'],
   });
 
   table.rows.add(rowsData).draw(false);
