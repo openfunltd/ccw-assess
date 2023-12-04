@@ -10,7 +10,9 @@ async function main() {
   }
   termSelectTag.attr("onchange",
     `displaySessionPeriod(false, ${latestTerm}, ${latestSessionPeriod}, this.value);`)
+
   displaySessionPeriod(true, latestTerm, latestSessionPeriod, termSelectTag.val());
+  updateLinks();
 
   const stat = await getStat();
 }
@@ -47,4 +49,16 @@ function displaySessionPeriod(isInitial, latestTerm, latestSessionPeriod, select
   } else {
     sessionPeriodSelectTag.val("");
   }
+}
+
+function updateLinks(){
+  const term = $('#term').val();
+  const sessionPeriod = $('#sessionPeriod').val();
+  $('a.sheet').each(function(){
+    const aTag = $(this);
+    const hrefBase = aTag.attr('href').split('?')[0];
+    const newHref = hrefBase + `?term=${term}&sessionPeriod=${sessionPeriod}`;
+    aTag.attr("href", newHref);
+    aTag.find('span').text(`${term}-${sessionPeriod}`);
+  });
 }

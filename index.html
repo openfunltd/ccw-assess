@@ -15,7 +15,7 @@
       <label for="term">屆期:</label>
       <select name="term" id="term"></select>
       <label for="sessionPeriod">會期:</label>
-      <select name="sessionPeriod" id="sessionPeriod">
+      <select name="sessionPeriod" id="sessionPeriod" onchange="updateLinks();">
         <option value="" disabled>---請選擇會期---</option>
         <option value="1">1</option>
         <option value="2">2</option>
@@ -28,80 +28,78 @@
       </select>
     </div>
   <hr>
-  <div class="container table-responsive">
-    <table id="index" class="table table-bordered table-hover table-sm nowrap" align="center">
-      <thead>
-        <tr>
-          <th>屆期</th>
-          <th>會期</th>
-          <th>統計表格代碼</th>
-          <th>統計表格名稱</th>
-          <th>網址 Link</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>10</td>
-          <td>6</td>
-          <td>A1</td>
-          <td>A1 10-6 院會出席整理</td>
-          <td><a href="./A1.html?term=10&sessionPeriod=6" target="_blank">A1_10-6</a></td>
-        </tr>
-        <tr>
-          <td>10</td>
-          <td>6</td>
-          <td>A2, A3</td>
-          <td>A2 A3 10-6 各委員會出席</td>
-          <td>
-            <a href="./A2_A3.html?term=10&sessionPeriod=6" target="_blank">A2_A3_10-6_委員會總表</a><br>
-            <ul>
-              <li><a href="./A2_A3/15.html?term=10&sessionPeriod=6" target="_blank">A2_A3_10-6_內政委員會</a></li>
-              <li><a href="./A2_A3/35.html?term=10&sessionPeriod=6" target="_blank">A2_A3_10-6_外交及國防委員會</a></li>
-              <li><a href="./A2_A3/19.html?term=10&sessionPeriod=6" target="_blank">A2_A3_10-6_經濟委員會</a></li>
-              <li><a href="./A2_A3/20.html?term=10&sessionPeriod=6" target="_blank">A2_A3_10-6_財政委員會</a></li>
-              <li><a href="./A2_A3/22.html?term=10&sessionPeriod=6" target="_blank">A2_A3_10-6_教育及文化委員會</a>
-              <li><a href="./A2_A3/23.html?term=10&sessionPeriod=6" target="_blank">A2_A3_10-6_交通委員會</a></li>
-              <li><a href="./A2_A3/36.html?term=10&sessionPeriod=6" target="_blank">A2_A3_10-6_司法及法制委員會</a></li>
-              <li><a href="./A2_A3/26.html?term=10&sessionPeriod=6" target="_blank">A2_A3_10-6_社會福利及衛生環境委員會</a></li>
-            </ul>
-          </td>
-        </tr>
-        <tr>
-          <td>10</td>
-          <td>6</td>
-          <td>A4</td>
-          <td>A4 10-6 法案預算審查</td>
-          <td>
-            <a href="./A4.html?term=10&sessionPeriod=6" target="_blank">A4_10-6_統計</a>
-            <ul>
-              <li><a href="./A4/15.html?term=10&sessionPeriod=6" target="_blank">A4_10-6_內政委員會</a></li>
-              <li><a href="./A4/35.html?term=10&sessionPeriod=6" target="_blank">A4_10-6_外交及國防委員會</a></li>
-              <li><a href="./A4/19.html?term=10&sessionPeriod=6" target="_blank">A4_10-6_經濟委員會</a></li>
-              <li><a href="./A4/20.html?term=10&sessionPeriod=6" target="_blank">A4_10-6_財政委員會</a></li>
-              <li><a href="./A4/22.html?term=10&sessionPeriod=6" target="_blank">A4_10-6_教育及文化委員會</a></li>
-              <li><a href="./A4/23.html?term=10&sessionPeriod=6" target="_blank">A4_10-6_交通委員會</a></li>
-              <li><a href="./A4/36.html?term=10&sessionPeriod=6" target="_blank">A4_10-6_司法及法制委員會</a></li>
-              <li><a href="./A4/26.html?term=10&sessionPeriod=6" target="_blank">A4_10-6_社會福利及衛生環境委員會</a></li>
-            </ul>
-          </td>
-        </tr>
-        <tr>
-          <td>10</td>
-          <td>6</td>
-          <td>A5</td>
-          <td>A5 10-6 法律主題案</td>
-          <td>
-            <a href="./A5.html?term=10&sessionPeriod=6" target="_blank">A5_10-6_法律提案筆數</a>
-            <ul>
-              <li><a href="./A5/first.html?term=10&sessionPeriod=6" target="_blank">A5_10-6_法律主提案第一人</a></li>
-              <li><a href="./A5/non-first.html?term=10&sessionPeriod=6" target="_blank">A5_10-6_法律非主提案第一人</a></li>
-              <li><a href="./A5/partygroups.html?term=10&sessionPeriod=6" target="_blank">A5_10-6_各黨團提案</a></li>
-              <li><a href="./A5/merge.html?term=10&sessionPeriod=6" target="_blank">A5_10-6_併案檢查表</a></li>
-            </ul>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="container">
+    <div class="row">
+      <div class="col-2"></div>
+      <div class="col table-responsive">
+        <table id="index" class="table table-bordered table-hover table-sm nowrap" align="center">
+          <thead>
+            <tr>
+              <th class="text-center">統計表格代碼</th>
+              <th class="text-center">統計表格名稱</th>
+              <th class="text-center">網址 Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-center align-middle">A1</td>
+              <td class="text-center align-middle">A1 院會出席整理</td>
+              <td>
+                <a class="sheet" href="./A1.html" target="_blank">A1_<span></span></a>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-center align-middle">A2, A3</td>
+              <td class="text-center align-middle">A2 A3 各委員會出席</td>
+              <td>
+                <a class="sheet" href="./A2_A3.html" target="_blank">A2_A3_<span></span>_委員會總表</a><br>
+                <ul>
+                  <li><a class="sheet" href="./A2_A3/15.html" target="_blank">A2_A3_<span></span>_內政委員會</a></li>
+                  <li><a class="sheet" href="./A2_A3/35.html" target="_blank">A2_A3_<span></span>_外交及國防委員會</a></li>
+                  <li><a class="sheet" href="./A2_A3/19.html" target="_blank">A2_A3_<span></span>_經濟委員會</a></li>
+                  <li><a class="sheet" href="./A2_A3/20.html" target="_blank">A2_A3_<span></span>_財政委員會</a></li>
+                  <li><a class="sheet" href="./A2_A3/22.html" target="_blank">A2_A3_<span></span>_教育及文化委員會</a>
+                  <li><a class="sheet" href="./A2_A3/23.html" target="_blank">A2_A3_<span></span>_交通委員會</a></li>
+                  <li><a class="sheet" href="./A2_A3/36.html" target="_blank">A2_A3_<span></span>_司法及法制委員會</a></li>
+                  <li><a class="sheet" href="./A2_A3/26.html" target="_blank">A2_A3_<span></span>_社會福利及衛生環境委員會</a></li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-center align-middle">A4</td>
+              <td class="text-center align-middle">A4 法案預算審查</td>
+              <td>
+                <a class="sheet" href="./A4.html" target="_blank">A4_<span></span>_統計</a>
+                <ul>
+                  <li><a class="sheet" href="./A4/15.html" target="_blank">A4_<span></span>_內政委員會</a></li>
+                  <li><a class="sheet" href="./A4/35.html" target="_blank">A4_<span></span>_外交及國防委員會</a></li>
+                  <li><a class="sheet" href="./A4/19.html" target="_blank">A4_<span></span>_經濟委員會</a></li>
+                  <li><a class="sheet" href="./A4/20.html" target="_blank">A4_<span></span>_財政委員會</a></li>
+                  <li><a class="sheet" href="./A4/22.html" target="_blank">A4_<span></span>_教育及文化委員會</a></li>
+                  <li><a class="sheet" href="./A4/23.html" target="_blank">A4_<span></span>_交通委員會</a></li>
+                  <li><a class="sheet" href="./A4/36.html" target="_blank">A4_<span></span>_司法及法制委員會</a></li>
+                  <li><a class="sheet" href="./A4/26.html" target="_blank">A4_<span></span>_社會福利及衛生環境委員會</a></li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-center align-middle">A5</td>
+              <td class="text-center align-middle">A5 法律主提案</td>
+              <td>
+                <a class="sheet" href="./A5.html" target="_blank">A5_<span></span>_法律提案筆數</a>
+                <ul>
+                  <li><a class="sheet" href="./A5/first.html" target="_blank">A5_<span></span>_法律主提案第一人</a></li>
+                  <li><a class="sheet" href="./A5/non-first.html" target="_blank">A5_<span></span>_法律非主提案第一人</a></li>
+                  <li><a class="sheet" href="./A5/partygroups.html" target="_blank">A5_<span></span>_各黨團提案</a></li>
+                  <li><a class="sheet" href="./A5/merge.html" target="_blank">A5_<span></span>_併案檢查表</a></li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-2"></div>
+    </div>
   </div>
   <script src="./js/index.js"></script>
 </body>
