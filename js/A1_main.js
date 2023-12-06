@@ -34,7 +34,8 @@ async function main(tableId) {
     dom: '<<"row"<"col"B><"col filter_adjust"f>>>rtip',
     buttons: [
         'pageLength', 'copy', 'excel'
-    ]
+    ],
+    order: [],
   });
 
   const legislators = await getLegislators(term, sessionPeriod);
@@ -56,7 +57,22 @@ async function main(tableId) {
   maxMeetDate = meetDates.reduce((prev, curr) => { return (prev > curr) ? prev : curr});
   minMeetDate = meetDates.reduce((prev, curr) => { return (prev < curr) ? prev : curr});
 
-  legislators.forEach(legislator => {
+  const standingComtNames = ['內政委員會', '外交及國防委員會', '經濟委員會', '財政委員會',
+                             '教育及文化委員會', '交通委員會', '司法及法制委員會', '社會福利及衛生環境委員會'];
+  let committeesLegislators = Array.from({ length: 8 }, () => []);
+
+  for (const legislator of legislators) {
+    for (const [i, comtName] of standingComtNames.entries()) {
+      const isComt = legislator.committee.includes(`第${term}屆第${sessionPeriod}會期：${comtName}`);
+      if (isComt) { committeesLegislators[i].push(legislator); }
+    }
+  }
+
+  console.log(committeesLegislators)
+
+  let orderedLegislators = committeesLegislators.reduce((acc, curr) => acc.concat(curr), []);
+
+  orderedLegislators.forEach(legislator => {
     let rowData = {};
     onboardDate = new Date(legislator.onboardDate);
     leaveDate = (legislator.leaveDate === "") ? "" : new Date(legislator.leaveDate);
