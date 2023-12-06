@@ -46,6 +46,7 @@ async function main(tableId) {
     if (meeting.meet_type === "聯席會議" && !meeting.id.startsWith(`${term}-${sessionPeriod}-${comtCd}`, 5)) {
       continue;
     }
+    if (meeting.meet_id.includes("臨時會委員會")) { continue };
     let rowData = [];
     if (meeting.議事錄 === undefined){
       rowData.push(meeting.id, meeting.title);
