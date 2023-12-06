@@ -48,6 +48,7 @@ async function main(tableId) {
     }
     for (const [i, date] of dates.entries()) {
       const commentRecord = commentRecords[i];
+      if (commentRecord === undefined) { continue };
       const meetingContent = commentRecord.content;
       if (!meetingContent.includes("審查")) { continue; }
       let title = commentRecord.meet_name;
