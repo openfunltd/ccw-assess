@@ -59,7 +59,7 @@ async function main(tableId) {
   const bills = currentSessionBills.concat(nextSessionBills);
 
   for (bill of bills) {
-    if (bill.議案名稱.includes("擬撤回前提之")) { continue };
+    if (bill.議案名稱.includes("撤回前提之")) { continue };
     let rowData = [];
     let billName = bill.議案名稱;
     if (billName.substring(0, 2) === "廢止") {
