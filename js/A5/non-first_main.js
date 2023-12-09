@@ -70,7 +70,7 @@ async function main(tableId) {
       const endIdx = billName.indexOf("」");
       billName = billName.substring(startIdx + 1, endIdx);
     }
-    let nonFirstArr = "No Data";
+    let nonFirstArr = ["No Data"];
     if (bill.提案人 != undefined) { nonFirstArr = bill.提案人.slice(1) };
     let data = Array.from({ length: orderedLegislatorsGroups.length }).fill(0);
     for (const nonFirst of nonFirstArr) {
