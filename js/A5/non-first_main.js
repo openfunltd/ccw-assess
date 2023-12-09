@@ -77,7 +77,8 @@ async function main(tableId) {
       const idx = orderedLegislatorsGroups.indexOf(nonFirst);
       if (idx > -1) { data[idx] = 1 };
     }
-    rowData.push(billName, bill.提案編號, nonFirstArr.join("、"), ...data);
+    const serialNumber = (bill.提案編號 === undefined) ? "No Data" : bill.提案編號;
+    rowData.push(billName, serialNumber, nonFirstArr.join("、"), ...data);
     rowsData.push(rowData);
   }
 

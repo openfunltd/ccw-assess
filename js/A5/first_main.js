@@ -75,7 +75,8 @@ async function main(tableId) {
     let data = Array.from({ length: orderedLegislatorsGroups.length }).fill(0);
     theFirstIdx = orderedLegislatorsGroups.indexOf(theFirst);
     if (theFirstIdx > -1) { data[theFirstIdx] = 1 };
-    rowData.push(billName, bill.提案編號, theFirst, ...data);
+    const serialNumber = (bill.提案編號 === undefined) ? "No Data" : bill.提案編號;
+    rowData.push(billName, serialNumber, theFirst, ...data);
     rowsData.push(rowData);
   }
 
@@ -100,7 +101,7 @@ async function main(tableId) {
 function getLegislatorLawBills(term, sessionPeriod) {
   return new Promise((resolve, reject) => {
     const url = `https://ly.govapi.tw/bill/?term=${term}&sessionPeriod=${sessionPeriod}` +
-      "&bill_type=法律案&bill_type=修憲案&proposal_type=委員提案&limit=2000";
+      "&bill_type=法律案&bill_type=修憲案&proposal_type=委員提案&limit=2000&field=提案人";
     $.getJSON(url, function(data) {
       resolve(data.bills);
     });
