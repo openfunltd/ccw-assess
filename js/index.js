@@ -38,7 +38,6 @@ function displaySessionPeriod(isInitial, latestTerm, latestSessionPeriod, select
   selectedTerm = parseInt(selectedTerm);
   const sessionPeriodSelectTag = $('#sessionPeriod');
   let maxSessionPeriod = 8;
-  if (latestTerm === selectedTerm) { maxSessionPeriod = latestSessionPeriod };
   sessionPeriodSelectTag.find('option').each(function(idx){
     const option = $(this);
     if (option.is(':hidden') && idx <= maxSessionPeriod) { option.show() };
