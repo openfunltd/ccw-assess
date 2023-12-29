@@ -1,5 +1,5 @@
 # ccw-assess
-Various statistics of legislators evaluation from [Citizen Congress Watch(公督盟)](https://ccw.org.tw). The website is hosted at Github Pages: https://openfunltd.github.io/ccw-assess/
+Various statistics of legislators evaluation from [Citizen Congress Watch(公督盟)](https://ccw.org.tw). The website is hosted at Github Pages: https://openfunltd.github.io/legislator-assess/
 
 ## Requirements
 ### [DataTables](https://datatables.net)
