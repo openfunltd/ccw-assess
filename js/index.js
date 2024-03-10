@@ -29,7 +29,7 @@ function getLatestTermSessionPeriod() {
   nowYear = now.getFullYear();
   const term = Math.floor((nowYear - 2012) / 4) + 8;
   checkDate = new Date(nowYear, 6, 1);
-  let sessionPeriod = (nowYear % 4) * 2;
+  let sessionPeriod = (nowYear % 4) * 2 + 1;
   if (checkDate < now) { sessionPeriod++ };
   return [term, sessionPeriod];
 }
