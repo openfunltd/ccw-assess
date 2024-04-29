@@ -1,6 +1,5 @@
 $(document).ready(main("A1"));
 
-
 async function main(tableId) {
   const GET_term = document.location.search.match(/term=([0-9]*)/);
   const GET_sessionPeriod = document.location.search.match(/sessionPeriod=([0-9]*)/);
@@ -68,8 +67,6 @@ async function main(tableId) {
     }
   }
 
-  console.log(committeesLegislators)
-
   let orderedLegislators = committeesLegislators.reduce((acc, curr) => acc.concat(curr), []);
 
   orderedLegislators.forEach(legislator => {
@@ -90,6 +87,10 @@ async function main(tableId) {
     let ccw_score = 0;
     attendance.forEach(meet => {
       sessionTimes = meet.sessionTimes.toString();
+      if (meet.議事錄 === undefined) {
+        rowData[sessionTimes] = "noData";
+        return;
+      }
       attended = meet.議事錄.出席委員;
       leave = meet.議事錄.請假委員;
       if (leave === undefined){ leave = []; };
@@ -118,7 +119,9 @@ async function main(tableId) {
     row = row.concat([rowData.total_count, rowData.attended_count, rowData.ccw_score]);
     let meet_count = Object.keys(rowData).length - row.length;
     for(var i = 1; i <= meet_count; i++) {
-      if (rowData[i.toString()] === "attended"){
+      if (rowData[i.toString()] === "noData") {
+        row = row.concat(['-', '-', '-']);
+      } else if (rowData[i.toString()] === "attended"){
         row = row.concat([1,0,0]);
       } else if (rowData[i.toString()] === "leave"){
         row = row.concat([0,1,0]);
