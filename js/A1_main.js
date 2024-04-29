@@ -56,6 +56,22 @@ async function main(tableId) {
   maxMeetDate = meetDates.reduce((prev, curr) => { return (prev > curr) ? prev : curr});
   minMeetDate = meetDates.reduce((prev, curr) => { return (prev < curr) ? prev : curr});
 
+  attendanceAsc = attendance.reverse();
+  var warning = '';
+  for (let i = 0; i < attendanceAsc.length; i++) {
+    if (attendanceAsc[i].議事錄 === undefined) {
+      warning = warning + `, ${i+1}`;
+    }
+  }
+  if (warning.length !== '') {
+    warning = warning.substr(2);
+    const warningContainerDiv = document.getElementById('warning-info');
+    const warningDiv = document.createElement('div');
+    warningDiv.setAttribute('class', 'alert alert-warning');
+    warningDiv.innerText = `第 ${warning} 次會議尚無「議事錄」資料。`;
+    warningContainerDiv.appendChild(warningDiv);
+  }
+
   const standingComtNames = ['內政委員會', '外交及國防委員會', '經濟委員會', '財政委員會',
                              '教育及文化委員會', '交通委員會', '司法及法制委員會', '社會福利及衛生環境委員會'];
   let committeesLegislators = Array.from({ length: 8 }, () => []);
