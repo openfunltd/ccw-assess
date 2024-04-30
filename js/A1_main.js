@@ -84,6 +84,10 @@ async function main(tableId) {
   }
 
   let orderedLegislators = committeesLegislators.reduce((acc, curr) => acc.concat(curr), []);
+  orderedLegislators = orderedLegislators.map(legislator => {
+    legislator.name = legislator.name.replace(/[\s　]/g, "");
+    return legislator;
+  });
 
   orderedLegislators.forEach(legislator => {
     let rowData = {};
@@ -108,8 +112,14 @@ async function main(tableId) {
         return;
       }
       attended = meet.議事錄.出席委員;
+      attended = attended.map(name => {
+        return name.replace(/[\s　]/g, "");
+      });
       leave = meet.議事錄.請假委員;
       if (leave === undefined){ leave = []; };
+      leave = leave.map(name => {
+        return name.replace(/[\s　]/g, "");
+      });
       if (attended.includes(rowData.name)){
         rowData[sessionTimes] = "attended";
         total_count += 1;
